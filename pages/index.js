@@ -66,7 +66,7 @@ export default function PaginaInicial() {
   const username = 'moniquetrotta';
 
   return (
-    <>
+    <> 
       <GlobalStyle />
       <Box
         styleSheet={{

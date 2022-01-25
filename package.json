@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
-  "dependencies": {
+  "dependencies": { 
     "@skynexui/components": "^1.23.9",
     "next": "^12.0.8",
     "react": "^17.0.2",
