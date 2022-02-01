@@ -1,21 +1,32 @@
 import { Box, Text, TextField, Image, Button } from '@skynexui/components';
 import React from 'react';
 import appConfig from '../config.json';
+import { useRouter } from 'next/router';
 import { createClient } from '@supabase/supabase-js'
+import { ButtonSendSticker } from '../src/components/ButtonSendSticker';
 
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0Mzc0MzczOCwiZXhwIjoxOTU5MzE5NzM4fQ.UhLdf-RPh2TyRbG6CWjeuuyOKiU1suS7FOHWVkMyNr4';
 const SUPABASE_URL = 'https://zfuhlofopaahwvewgrcb.supabase.co';
 const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export default function ChatPage() {
+    const roteamento = useRouter();
+    const usuarioLogado = roteamento.query.username;
+    console.log(roteamento.query);
     const [mensagem, setMensagem] = React.useState('');
-    const [listaDeMensagens, setListaDeMensagens] = React.useState([]);
+    const [listaDeMensagens, setListaDeMensagens] = React.useState([
+        //{
+          //  id: 1,
+           // de: 'moniquetrotta',
+          //  texto: ':sticker: URL_da_imagem'
+        //}
+    ]);
 
     React.useEffect(() => {
         supabaseClient
             .from('mensagens')
             .select('*')
-            .order('id', { ascending: false})
+            .order('id', { ascending: false })
             .then(({ data }) => {
                 console.log('Dados da consulta:', data);
                 setListaDeMensagens(data);
@@ -25,7 +36,7 @@ export default function ChatPage() {
     function handleNovaMensagem(novaMensagem) {
         const mensagem = {
             //id: listaDeMensagens.length + 1,
-            de: 'GPcruz',
+            de: usuarioLogado,
             texto: novaMensagem,
         };
         supabaseClient
@@ -123,6 +134,13 @@ export default function ChatPage() {
                                 color: appConfig.theme.colors.neutrals[200],
                             }}
                         />
+                        {/*Callback*/}
+                        <ButtonSendSticker 
+                            onStickerClick ={(sticker) => {
+                                console.log('Salva esse sticker no banco');
+                                handleNovaMensagem(':sticker: ' + sticker);
+                            }}                      
+                        />
                     </Box>
                 </Box>
             </Box>
@@ -149,7 +167,7 @@ function Header() {
 }
 
 function MessageList(props) {
-    console.log(props.listaDeMensagens);
+    console.log(props);
     return (
         <Box
             tag="ul"
@@ -205,7 +223,15 @@ function MessageList(props) {
                                 {(new Date().toLocaleDateString())}
                             </Text>
                         </Box>
-                        {mensagem.texto}
+                    
+                        {mensagem.texto.startsWith(':sticker:')
+                            ? (
+                                <Image src={mensagem.texto.replace(':sticker:', '')}/>
+                            )
+                            : (
+                                mensagem.texto
+                            )}
+                        {/*{mensagem.texto}*/}
                     </Text>
                 );
             })}
