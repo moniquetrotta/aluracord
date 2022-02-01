@@ -35,7 +35,7 @@ export default function ChatPage() {
                 mensagem
             ])
             .then(({ data }) => {
-                console.log('criando mensagem:', oquevemderesposta);
+                console.log('criando mensagem:', data);
                 setListaDeMensagens([
                     data[0],
                     ...listaDeMensagens,
