@@ -14,13 +14,16 @@ export default function ChatPage() {
     const usuarioLogado = roteamento.query.username;
     console.log(roteamento.query);
     const [mensagem, setMensagem] = React.useState('');
-    const [listaDeMensagens, setListaDeMensagens] = React.useState([
-        //{
-          //  id: 1,
-           // de: 'moniquetrotta',
-          //  texto: ':sticker: URL_da_imagem'
-        //}
-    ]);
+    const [listaDeMensagens, setListaDeMensagens] = React.useState([]);
+
+    function escutaMensagensEmTempoReal(adicionaMensagem) {
+        return supabaseClient
+            .from('mensagens')
+            .on('INSERT', (respostaLive) => {
+                adicionaMensagem(respostaLive.new);
+            })
+            .subscribe();
+    }
 
     React.useEffect(() => {
         supabaseClient
@@ -31,6 +34,16 @@ export default function ChatPage() {
                 console.log('Dados da consulta:', data);
                 setListaDeMensagens(data);
             });
+
+        escutaMensagensEmTempoReal((novaMensagem) => {
+            console.log('Nova mensagem:', novaMensagem);
+            setListaDeMensagens((valorAtualDaLista) => {
+                return [
+                    novaMensagem,
+                    ...valorAtualDaLista,
+                ]
+            });
+        });
     }, []);
 
     function handleNovaMensagem(novaMensagem) {
@@ -47,10 +60,10 @@ export default function ChatPage() {
             ])
             .then(({ data }) => {
                 console.log('criando mensagem:', data);
-                setListaDeMensagens([
-                    data[0],
-                    ...listaDeMensagens,
-                ]);
+                //  setListaDeMensagens([
+                //      data[0],
+                //      ...listaDeMensagens,
+                //   ]);
             });
         setMensagem('');
     }
@@ -135,11 +148,11 @@ export default function ChatPage() {
                             }}
                         />
                         {/*Callback*/}
-                        <ButtonSendSticker 
-                            onStickerClick ={(sticker) => {
+                        <ButtonSendSticker
+                            onStickerClick={(sticker) => {
                                 console.log('Salva esse sticker no banco');
                                 handleNovaMensagem(':sticker: ' + sticker);
-                            }}                      
+                            }}
                         />
                     </Box>
                 </Box>
@@ -223,10 +236,10 @@ function MessageList(props) {
                                 {(new Date().toLocaleDateString())}
                             </Text>
                         </Box>
-                    
+
                         {mensagem.texto.startsWith(':sticker:')
                             ? (
-                                <Image src={mensagem.texto.replace(':sticker:', '')}/>
+                                <Image src={mensagem.texto.replace(':sticker:', '')} />
                             )
                             : (
                                 mensagem.texto
